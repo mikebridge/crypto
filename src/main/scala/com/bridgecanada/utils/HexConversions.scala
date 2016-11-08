@@ -7,6 +7,17 @@ object HexConversions {
   def toHexString (byteArray: Array[Byte] ) = DatatypeConverter.printHexBinary (byteArray)
   def toByteArray (s: String) = DatatypeConverter.parseHexBinary (s)
 
+  def isPrintable(ch: Int): Boolean = {
+    ch >= 'a' && ch <= 'z' ||
+    ch >= 'A' && ch <= 'Z' ||
+    ch == '.' ||
+    ch == ',' ||
+    ch == '?' ||
+    ch == '!' ||
+    ch >= '0' && ch <= '9' ||
+    ch == ' '
+  }
+
   //implicit def asHexString(byteArray : Array[Byte]): String = toHexString(byteArray)
 
   implicit class HexString(private val str: String) {
@@ -25,38 +36,17 @@ object HexConversions {
     //def readable: String = str.sliding(2,2).map(b => String.format("%02X", java.lang.Byte.valueOf(b))).mkString(" ")
     def readable:String = str.sliding(2,2)
       .map(b => java.lang.Integer.parseInt(b, 16).toChar)
-      .map(x => if (
-          x >= 'a' && x <= 'z' ||
-          x >= 'A' && x <= 'Z' ||
-          x == '.' ||
-          x == ',' ||
-          x == '?' ||
-          x == '!' ||
-          x >= '0' && x <= '9' ||
-          x == ' ') x
-          else '_')
+      .map(x => if (isPrintable(x)) x else '_')
       .mkString
 
-    def compareAgainstBad(str2:String): String = {
-      str.fromHexStringToInts.zip(str2.fromHexStringToInts)
-        .map {
-          case (a:Int, b:Int) if a == b => "X"
-          case (a:Int, b:Int) if a != b => "_"
-        }.mkString
-    }
+    def findMatchesWith(str2: String): Iterator[Int] = {
+      str.fromHexStringToInts.zip(str2.fromHexStringToInts).zipWithIndex.flatMap {
+        case ((a: Int, b: Int), index: Int) if a == b => Some(index)
+        case (_) => None
+        //case ((a: Int, b: Int), index:Int) if a != b => "1"
+      }
 
-    def compareAgainst(str2: String) : String = {
-      str.fromHexStringToInts.zip(str2.fromHexStringToInts).map {
-        case (a: Int, b: Int) if a == b => "1"
-        case (a: Int, b: Int) if a != b => "0"
-      }.mkString
     }
-//    def compareAgainst(str2: String): String = {
-//      str.zip(str2).map {
-//        case (a:Char, b:Char) if (a == b) => "X"
-//        case (a:Char, b:Char) if (a == b) => " "
-//      }.mkString
-//    }
   }
 
   implicit class HexBytes(private val byteArray: Array[Byte]) {

@@ -48,7 +48,7 @@ println("          1         2         3         4         5         6         7
 // take the XOR of all-space messages and compare against enc1 xor enc2
 // to find where the likely commonality of space-chars is in the two unknown messages
 
-println(testMessageXor.compareAgainst(testCipherXor))
+println(testMessageXor.findMatchesWith(testCipherXor))
 
 var charAt = 13
 //println((cipherText(1) ^ spaceMessage)(charAt))
@@ -69,18 +69,20 @@ var mutTestKey: Array[Int] = Array.fill(256){0}
 //List(0,9,32,47).foreach(mutTestKey.setCharAt(_,'e'))
 //List(1,10,15,23,31,36,40,52,58,64,74).foreach(mutTestKey.setCharAt(_,' '))
 //List(3).foreach(mutTestKey.setCharAt(_,' '))
-mutTestKey(30) = 145   // 0 + 1
-mutTestKey(53) = 116   // 0 + 1
+
 mutTestKey(70) = 156   // 0 + 1 // GOOD
 mutTestKey(20) = 170   // 1 + 2 // GOOD
 mutTestKey(57) = 232   // 1 + 2 // GOOD
+mutTestKey(3) = 137   // 2 + 3 // GOOD
+
+mutTestKey(30) = 145   // 0 + 1
+mutTestKey(53) = 116   // 0 + 1
 mutTestKey(0) = 14   // 2 + 3
 mutTestKey(1) = 113   // 2 + 3
 mutTestKey(2) = 43   // 2 + 3
-mutTestKey(3) = 137   // 2 + 3 // GOOD
-mutTestKey(13) = 55   // 3 + 4
 mutTestKey(14) = 149   // 3 + 4
 //mutTestKey(1) = 14   // 3 + 4
+
 //val testKey = mutTestKey.toString.asAsciiHexString
 //String.format("%02X", value);
 //val testKey = mutTestKey.map(Integer.toHexString).mkString
