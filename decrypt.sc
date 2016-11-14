@@ -56,6 +56,8 @@ val xorCipherMatches: List[TestXorResult] = for {
 //    +"0123456789" * 10)
 xorCipherMatches.foreach(println)
 
+// find the key that would match with the test message
+// where our guess was successful.
 def createKeyGuess(xorCipherMatch: TestXorResult): String = {
   var testKey: Array[Int] = Array.fill(maxCipherLength){0}
    // ^ spaceMessage).fromHexStringToInts.toArray
@@ -70,38 +72,25 @@ def createKeyGuess(xorCipherMatch: TestXorResult): String = {
 }
 
 // now try a test key against the actual data
-var matchResult: List[(TestXorResult, String, Array[Int])] = for {
+case class MatchResult(
+  cipherMatch: TestXorResult,
+  keyGuess: String,
+  messageGuess: Array[Int])
+
+var matchResults: List[MatchResult] = for {
   xorCipherMatch: TestXorResult <- xorCipherMatches
-} yield (xorCipherMatch, createKeyGuess(xorCipherMatch), (cipherText(xorCipherMatch.xindex) ^ createKeyGuess(xorCipherMatch)).fromHexStringToInts.toArray  )
-
-//x.foreach(x => println(x._1 +"\n"+x._2.readable))
-
-matchResult.foreach(x => println(x._3))
-
-// find the positions where the char at that position
-// is readable for all messages (i.e. testMessage has a printable
-// char at that position)
-//for {
-//  charIdx <- 0 to maxLength
-//  (xorCipherMatch, keyGuess, testMessage) <- matchResult
-//} yield (testMessage)
-
-//var paddedMessages = for (i <- 0 to maxLength; j <- 0 to cipherText.length) yield {
-//  val testMessage = matchResult(j)._3
-//  if (testMessage.length > i) {
-//    Some(testMessage(i))
-//  } else {
-//    None
-//  }
-//}.toArray
+} yield MatchResult(
+  xorCipherMatch,
+  createKeyGuess(xorCipherMatch),
+  (cipherText(xorCipherMatch.xindex) ^ createKeyGuess(xorCipherMatch)).fromHexStringToInts.toArray)
 
 
-// find the indexes of the testMessages which have only printable chars.
-var testMessageCols: IndexedSeq[Boolean] = for (column <- 0 until maxCipherLength) yield {
-  var key: IndexedSeq[Option[Int]] = for (matchResultNumber <- matchResult.indices) yield {
-    val readableMessageGuess: Array[Int] = matchResult(matchResultNumber)._3
+// find the col indexes of the testMessages which have only printable chars.
+val testMessageCols: IndexedSeq[Boolean] = for (column <- 0 until maxCipherLength) yield {
+  val key: IndexedSeq[Option[Int]] = for (matchResultNumber <- matchResults.indices) yield {
+    val readableMessageGuess: Array[Int] = matchResults(matchResultNumber).messageGuess
     if (readableMessageGuess.length > column) {
-      Some(matchResult(matchResultNumber)._3(column))
+      Some(readableMessageGuess(column))
     } else {
       None
     }
@@ -111,15 +100,15 @@ var testMessageCols: IndexedSeq[Boolean] = for (column <- 0 until maxCipherLengt
 
 var result = testMessageCols.toList.zipWithIndex.filter(x => x._1)
 
-result.foreach(x => println(x))
+result.foreach(x => println(x._2))
 
 
 
 
 //var keyValueByCol: IndexedSeq[List[List[Int]]] =
 //  for (column <- 0 until maxCipherLength) yield {
-//    for (matchResultNumber <- matchResult.indices) yield {
-//      val readableMessageGuess: Array[Int] = matchResult(matchResultNumber)._3
+//    for (matchResultNumber <- matchResults.indices) yield {
+//      val readableMessageGuess: Array[Int] = matchResults(matchResultNumber)._3
 //      if (readableMessageGuess.length > column) {
 //        Some(readableMessageGuess(column))
 //      } else {
