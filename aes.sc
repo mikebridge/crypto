@@ -1,6 +1,4 @@
 import com.bridgecanada.utils.HexConversions._
-import java.security.MessageDigest
-import java.util
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 
@@ -15,27 +13,36 @@ object Encryption {
     Array.fill[Byte](bytesToAdd)(bytesToAdd.byteValue) ++ bytes
   }
 
-  def encrypt(key: String, message: String, iv: IvParameterSpec): String = {
+  def encryptCBC(key: String, message: String, iv: IvParameterSpec): String = {
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
     cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec(key), iv)
-    //var result = cipher.doFinal(message.asAsciiHexString.asBytes)
-    var result = cipher.doFinal(iv.getIV ++ message.asAsciiHexString.asBytes)
-    //println(result)
-    //println("ENCRYPTED USING IV " + cipher.getIV.asHexString)
-    //result.asHexString
-    //cipher.doFinal(padRight(message.asAsciiHexString.asBytes)).asHexString
+    var result = iv.getIV ++ cipher.doFinal(message.asAsciiHexString.asBytes)
     result.asHexString
   }
 
-  def decrypt(key: String, cipherText: String): String = {
+  def decryptCBC(key: String, cipherText: String): String = {
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
     cipher.init(Cipher.DECRYPT_MODE, secretKeySpec(key), getIV(cipherText))
     cipher.doFinal(cipherText.asBytes.drop(16)).asHexString.readable
   }
 
+  def decryptCTR(key: String, cipherText: String): String = {
+    val cipher = Cipher.getInstance("AES/CTR/NoPadding")
+    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec(key), getIV(cipherText))
+    cipher.doFinal(cipherText.asBytes.drop(16)).asHexString.readable
+  }
+
+  def encryptCTR(key: String, message: String, iv: IvParameterSpec): String = {
+    val cipher = Cipher.getInstance("AES/CTR/NoPadding")
+    cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec(key), iv)
+    var result = iv.getIV ++ cipher.doFinal(message.asAsciiHexString.asBytes)
+    result.asHexString
+  }
+
   def getIV(encryptedValue:String): IvParameterSpec = {
     var iv = encryptedValue.asBytes.take(16)
-    println(iv.asHexString)
+    //var iv = Array.fill[Byte](16)(1)
+    println("GetIV: " + iv.asHexString)
     new IvParameterSpec(iv)
   }
 
@@ -45,15 +52,21 @@ object Encryption {
 }
 
 def testCBC(cbckey:String, cipherText:String): Unit = {
-  val decrypted = Encryption.decrypt(cbckey, cipherText)
-  //println("\""+z1+"\"")
-  //println("Using iv " + iv)
+  val decrypted = Encryption.decryptCBC(cbckey, cipherText)
   val iv = Encryption.getIV(cipherText)
-  val cipherText2 = Encryption.encrypt(cbckey, decrypted, iv)
+  val cipherText2 = Encryption.encryptCBC(cbckey, decrypted, iv)
   println("MESSAGE: " + decrypted)
   println("CIPHERTEXT1:  " + cipherText)
   println("SHOULD EQUAL: " + cipherText2)
+}
 
+def testCTR(ctrkey:String, cipherText:String): Unit = {
+  val decrypted = Encryption.decryptCTR(ctrkey, cipherText)
+  val iv = Encryption.getIV(cipherText)
+  val cipherText2 = Encryption.encryptCTR(ctrkey, decrypted, iv)
+  println("MESSAGE: " + decrypted)
+  println("CIPHERTEXT1:  " + cipherText)
+  println("SHOULD EQUAL: " + cipherText2)
 }
 
 
@@ -66,28 +79,11 @@ val cbckey2 = "140b41b22a29beb4061bda66b6747e14"
 val cipherText2 = "5b68629feb8606f9a6667670b75b38a5b4832d0f26e1ab7da33249de7d4afc48e713ac646ace36e872ad5fb8a512428a6e21364b0c374df45503473c5242a253"
 testCBC(cbckey2, cipherText2)
 
+val ctrkey3 = "36f18357be4dbd77f050515c73fcf9f2"
+val cipherText3 = "69dda8455c7dd4254bf353b773304eec0ec7702330098ce7f7520d1cbbb20fc388d1b0adb5054dbd7370849dbf0b88d393f252e764f1f5f7ad97ef79d59ce29f5f51eeca32eabedd9afa9329"
+testCTR(ctrkey3, cipherText3)
 
-//object EncryptionOrig {
-//  def encrypt(key: String, value: String): String = {
-//    val cipher: Cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-//    cipher.init(Cipher.ENCRYPT_MODE, keyToSpec(key))
-//    Base64.encodeBase64String(cipher.doFinal(value.getBytes("UTF-8")))
-//  }
-//
-//  def decrypt(key: String, encryptedValue: String): String = {
-//    val cipher: Cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING")
-//    cipher.init(Cipher.DECRYPT_MODE, keyToSpec(key))
-//    new String(cipher.doFinal(Base64.decodeBase64(encryptedValue)))
-//  }
-//
-//  def keyToSpec(key: String): SecretKeySpec = {
-//    var keyBytes: Array[Byte] = (SALT + key).getBytes("UTF-8")
-//    val sha: MessageDigest = MessageDigest.getInstance("SHA-1")
-//    keyBytes = sha.digest(keyBytes)
-//    keyBytes = util.Arrays.copyOf(keyBytes, 16)
-//    new SecretKeySpec(keyBytes, "AES")
-//  }
-//
-//  private val SALT: String =
-//    "jMhKlOuJnM34G6NHkqo9V010GhLAqOpF0BePojHgh1HgNg8^72k"
-//}
+val ctrkey4 = "36f18357be4dbd77f050515c73fcf9f2"
+val cipherText4 = "770b80259ec33beb2561358a9f2dc617e46218c0a53cbeca695ae45faa8952aa0e311bde9d4e01726d3184c34451"
+testCTR(ctrkey4, cipherText4)
+

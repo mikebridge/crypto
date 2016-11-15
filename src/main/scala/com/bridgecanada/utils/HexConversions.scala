@@ -4,7 +4,7 @@ import javax.xml.bind.DatatypeConverter
 
 object HexConversions {
 
-  def toHexString (byteArray: Array[Byte] ) = DatatypeConverter.printHexBinary (byteArray)
+  def toHexString (byteArray: Array[Byte] ) = DatatypeConverter.printHexBinary (byteArray).toLowerCase
   def toByteArray (s: String) = DatatypeConverter.parseHexBinary (s)
 
   def isPrintable(ch: Int): Boolean = {
