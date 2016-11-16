@@ -11,7 +11,6 @@ scalaVersion := "2.12.0"
 
 // https://mvnrepository.com/artifact/commons-codec/commons-codec
 libraryDependencies += "commons-codec" % "commons-codec" % "1.9"
-
 // for debugging sbt problems
 logLevel := Level.Debug
 

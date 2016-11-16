@@ -16,7 +16,7 @@ object Encryption {
   def encryptCBC(key: String, message: String, iv: IvParameterSpec): String = {
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
     cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec(key), iv)
-    var result = iv.getIV ++ cipher.doFinal(message.asAsciiHexString.asBytes)
+    var result = iv.getIV ++ cipher.doFinal(message.fromAsciiToHexString.asBytes)
     result.asHexString
   }
 
@@ -35,7 +35,7 @@ object Encryption {
   def encryptCTR(key: String, message: String, iv: IvParameterSpec): String = {
     val cipher = Cipher.getInstance("AES/CTR/NoPadding")
     cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec(key), iv)
-    var result = iv.getIV ++ cipher.doFinal(message.asAsciiHexString.asBytes)
+    var result = iv.getIV ++ cipher.doFinal(message.fromAsciiToHexString.asBytes)
     result.asHexString
   }
 

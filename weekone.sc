@@ -30,7 +30,7 @@ val targetCypertext = "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f
 
 //val origMsg = cipherText.map((x: String) => (testKey.asAsciiHexString ^ x).readable)
 
-val spaceMessage = new StringBuilder(" " * 100).toString.asAsciiHexString
+val spaceMessage = new StringBuilder(" " * 100).toString.fromAsciiToHexString
 var testMessageXor = spaceMessage ^ spaceMessage
 var testCipher1 = 3
 var testCipher2 = 4

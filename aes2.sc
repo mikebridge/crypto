@@ -2,7 +2,10 @@ import com.bridgecanada.utils.HexConversions._
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
+/** Week 2 AES utils **/
+
 object Encryption {
+
 
   val blocklength = 16
 
@@ -35,7 +38,7 @@ object Encryption {
 
     val cipher = createCipher(key, Cipher.ENCRYPT_MODE)
 
-    padRightCBC(message.asAsciiHexString.asBytes)
+    padRightCBC(message.fromAsciiToBytes)
       .grouped(blocklength)
       .scanLeft(iv)((a, b) => cipher.doFinal(a ^ b))
       .map(_.asHexString)
@@ -89,7 +92,7 @@ object Encryption {
 
     val cipher = createCipher(key, Cipher.ENCRYPT_MODE)
 
-    iv.asHexString + message.asAsciiHexString.asBytes
+    iv.asHexString + message.fromAsciiToHexString.asBytes
       .grouped(blocklength)
       .zipWithIndex.map {
         case (block, i) => cipher.doFinal(getIVAt(iv, i)) ^ block
@@ -99,6 +102,8 @@ object Encryption {
   }
 
 }
+
+/** Week 2 Questions **/
 
 def testCBC(cbckey:String, cipherText:String): Unit = {
   val decrypted = Encryption.decryptCBC(cbckey, cipherText)

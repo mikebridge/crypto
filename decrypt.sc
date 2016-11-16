@@ -36,8 +36,8 @@ val cipherText =
 
 val maxCipherLength = cipherText.foldLeft(0)((len, str:String) => if (str.length() > len) str.length() else len)
 
-val testMessage1 = new StringBuilder(" " * 100).toString.asAsciiHexString
-val testMessage2 = new StringBuilder(" " * 100).toString.asAsciiHexString
+val testMessage1 = new StringBuilder(" " * 100).toString.fromAsciiToHexString
+val testMessage2 = new StringBuilder(" " * 100).toString.fromAsciiToHexString
 var testMessageXor = testMessage1 ^ testMessage2
 
 case class TestXorResult(
@@ -68,7 +68,7 @@ def createKeyGuess(xorCipherMatch: TestXorResult): String = {
     var arr = cipherText(xorCipherMatch.xindex).fromHexStringToInts.toArray
     testKey(idx) = arr(idx) ^ testMessage1.charAt(idx)
   }
-  testKey.map("%02x".format(_)).mkString.asAsciiHexString
+  testKey.map("%02x".format(_)).mkString.fromAsciiToHexString
 }
 
 // now try a test key against the actual data
