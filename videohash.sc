@@ -65,6 +65,7 @@ object VideoEncoder {
 
 }
 
+// turns out STream is memoized. :(
 
 val reverseMessages = VideoEncoder.openReverseFileStream(channel, readChunkSize)
 

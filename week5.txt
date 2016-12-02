@@ -1,0 +1,16 @@
+1) Alice contacts the TTP. TTP generates a random kAB and a random kAC. It sends to Alice
+
+   E(ka,kAB),ticket1←E(kb,kAB),ticket2←E(kc,kAC).
+
+Alice sends ticket1 to Bob and ticket2 to Carol.
+
+2) f(gx,gy)=gx+y
+
+3) secret=gb/a. Alice computes the secret as Ba
+and Bob computes A1/b.
+
+4) no
+
+5) 10, -3, 17
+
+6) 
